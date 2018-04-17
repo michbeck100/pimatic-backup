@@ -1,0 +1,30 @@
+{
+  "name": "pimatic-backup",
+  "description": "Backup your pimatic config via FTP",
+  "author": "Wiebe Nieuwenhuis <info@wiebenieuwenhuis.nl> (http://wiebenieuwenhuis.nl)",
+  "main": "backup",
+  "files": [
+    "backup.coffee",
+    "README.md",
+    "backup-config-schema.coffee"
+  ],
+  "version": "0.1.0",
+  "homepage": "http://pimatic.org",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sweebee/pimatic-backup.git"
+  },
+  "configSchema": "backup-config-schema.coffee",
+  "dependencies": {
+    "ftp": "^0.3.10",
+    "md5": "^2.2.1"
+  },
+  "peerDependencies": {
+    "pimatic": "0.9.*"
+  },
+  "engines": {
+    "node": ">4.*",
+    "npm": ">1.1.x"
+  }
+}
