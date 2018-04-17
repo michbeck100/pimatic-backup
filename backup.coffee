@@ -1,7 +1,7 @@
 module.exports = (env) ->
 
+  events = env.require 'events'
   md5 = require 'md5'
-  Client = require 'ftp'
 
   class BackupPlugin extends env.plugins.Plugin
 
@@ -9,26 +9,14 @@ module.exports = (env) ->
 
       @prev_hash = ''
       #create a client
-      @client = new Client()
+      if @config.driver == 'FTP'
+        @driver = new FtpDriver(@config.driverOptions)
 
-      # Catch any error
-      @client.on "error", (err) =>
-        env.logger.error err
-
-      # When ready start backup
-      @client.on "ready", =>
+      @driver.on "ready", =>
         @createBackup()
         setInterval () =>
           @createBackup()
         ,  @config.interval * 3600000
-
-      # Set the connection options
-      @client.connect({
-        host: @config.host,
-        port: @config.port,
-        user: @config.username,
-        password: @config.password
-      })
 
     createBackup: ->
       # Get the config and convert it to a string
@@ -41,20 +29,47 @@ module.exports = (env) ->
         env.logger.debug "Creating backup"
         # Create a timestamp to identify the backup
         timestamp = new Date().toLocaleString()
-        # If the path does not end with a slash, add one
-        if @config.path.endsWith('/')
-          slash = ''
-        else
-          slash = '/'
         # Upload the config to the server
-        @client.put config, @config.path + slash + timestamp + '.json', (err) =>
-          if err
-            env.logger.error err
-          else
-            @prev_hash = hash
-            env.logger.debug "Backup created"
+        @driver.upload(config, timestamp + '.json')
+        @prev_hash = hash
       else
         env.logger.debug "Hash still the same, don't backup"
+
+  class FtpDriver extends events.EventEmitter
+
+    constructor: (options) ->
+
+      @options = options
+      FtpClient = require 'ftp'
+      @client = new FtpClient()
+
+      # Catch any error
+      @client.on "error", (err) =>
+        env.logger.error err
+
+      # When ready start backup
+      @client.on "ready", =>
+        @emit "ready"
+
+      # Set the connection options
+      @client.connect({
+        host: @options.host,
+        port: @options.port or 21,
+        user: @options.username,
+        password: @options.password
+      })
+
+    upload: (data, name) =>
+      # If the path does not end with a slash, add one
+      if @options.path.endsWith('/')
+        slash = ''
+      else
+        slash = '/'
+      @client.put data, @options.path + slash + name, (err) =>
+        if err
+          env.logger.error err
+        else
+          env.logger.debug "Backup created"
 
   backupPlugin = new BackupPlugin
   return backupPlugin
