@@ -16,7 +16,7 @@ module.exports = (env) ->
         @createBackup()
         setInterval () =>
           @createBackup()
-        ,  @config.interval * 3600000
+        , @config.interval * 3600000
 
     createBackup: ->
       # Get the config and convert it to a string
