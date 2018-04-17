@@ -11,13 +11,9 @@ module.exports = (env) ->
       #create a client
       @client = new Client()
 
-      # Set the connection options
-      @client.connect({
-        host: @config.host,
-        port: @config.port,
-        user: @config.username,
-        password: @config.password
-      })
+      # Catch any error
+      @client.on "error", (err) =>
+        env.logger.error err
 
       # When ready start backup
       @client.on "ready", =>
@@ -26,14 +22,28 @@ module.exports = (env) ->
           @createBackup()
         ,  @config.interval * 3600000
 
-    createBackup: ->
-      config = JSON.stringify(@framework.config)
-      hash = md5(config)
+      # Set the connection options
+      @client.connect({
+        host: @config.host,
+        port: @config.port,
+        user: @config.username,
+        password: @config.password
+      })
 
+    createBackup: ->
+      # Get the config and convert it to a string
+      config = JSON.stringify(@framework.config)
+      # Generate a md5 hash of the current config
+      hash = md5(config)
+      # Check if the hash is the same as the backup before
+      # If not the same create a new backup
       if @prev_hash != hash
         env.logger.debug "Creating backup"
+        # Create a timestamp to identify the backup
         timestamp = new Date().toLocaleString()
+        # If the path does not end with a slash, add one
         @config.path.endsWith('/') ? slash = '' : slash = '/'
+        # Upload the config to the server
         @client.put config, @config.path + slash + timestamp + '.json', (err) =>
           if err
             env.logger.error err
