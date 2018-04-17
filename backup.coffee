@@ -42,7 +42,10 @@ module.exports = (env) ->
         # Create a timestamp to identify the backup
         timestamp = new Date().toLocaleString()
         # If the path does not end with a slash, add one
-        @config.path.endsWith('/') ? slash = '' : slash = '/'
+        if @config.path.endsWith('/')
+          slash = ''
+        else
+          slash = '/'
         # Upload the config to the server
         @client.put config, @config.path + slash + timestamp + '.json', (err) =>
           if err
