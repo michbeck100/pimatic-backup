@@ -29,7 +29,7 @@ module.exports = (env) ->
         env.logger.debug "Creating backup"
         # Create a timestamp to identify the backup
         dateFormat = require('dateformat')
-        timestamp = dateFormat(new Date(),"yyyy-mm-dd_hhMMss")        
+        timestamp = dateFormat(new Date(),"yyyy-mm-dd_HHMMss")        
         # Upload the config to the server
         @driver.upload(config, timestamp + '.json')
         @prev_hash = hash
