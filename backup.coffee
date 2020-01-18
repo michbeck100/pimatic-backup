@@ -28,7 +28,8 @@ module.exports = (env) ->
       if @prev_hash != hash
         env.logger.debug "Creating backup"
         # Create a timestamp to identify the backup
-        timestamp = new Date().toLocaleString()
+        dateFormat = require('dateformat')
+        timestamp = dateFormat(new Date(),"yyyy-mm-dd_hhMMss")        
         # Upload the config to the server
         @driver.upload(config, timestamp + '.json')
         @prev_hash = hash
