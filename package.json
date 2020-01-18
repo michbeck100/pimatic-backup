@@ -16,7 +16,8 @@
   "configSchema": "backup-config-schema.coffee",
   "dependencies": {
     "ftp": "^0.3.10",
-    "md5": "^2.2.1"
+    "md5": "^2.2.1",
+    "dateformat": "^3.0.3"
   },
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"
